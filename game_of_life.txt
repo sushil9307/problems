@@ -1,0 +1,191 @@
+Your task is to write a program to calculate the next
+generation of Conway's game of life, given any starting
+position. You start with a two dimensional grid of cells, 
+where each cell is either alive or dead. The grid is finite, 
+and no life can exist off the edges. When calculating the 
+next generation of the grid, follow these four rules:
+
+1. Any live cell with fewer than two live neighbours dies, 
+   as if caused by underpopulation.
+2. Any live cell with more than three live neighbours dies, 
+   as if by overcrowding.
+3. Any live cell with two or three live neighbours lives 
+   on to the next generation.
+4. Any dead cell with exactly three live neighbours becomes 
+   a live cell.
+
+Examples: * indicates live cell, . indicates dead cell
+
+Example input: (4 x 8 grid)
+4 8
+........
+....*...
+...**...
+........
+
+Example output:
+4 8
+........
+...**...
+...**...
+........
+
+
+PROGRAM
+--------
+
+<?php
+$input = "4 8............*......**...........";
+echo nl2br("input\n".$input."\n");
+$row = substr($input,0,1);
+$col = substr($input,2,1);
+//echo($grid_row."ro---co".$grid_col);
+$input = substr($input,3);
+
+$res_array = nextGeneration($input, $row, $col);
+
+//echo nl2br("\n output \n");
+//print_r ($res_array);
+$tmp_array = array();
+
+foreach ($res_array as $sub_array) 
+{
+	$tmp_array[] = implode('', $sub_array);
+}
+
+$output = implode('', $tmp_array);
+$output = $row." ".$col.$output;
+echo nl2br("\n output \n".$output);
+
+/*************************************************************************************************
+
+Function Name: nextGeneration
+Input Parameters : fn_input -- actual input string
+Return : count
+Description :
+-This function stores the string in 2D array(4 X 8 grid) of live and dead cells.
+	live cells are denoted by *
+	dead cells are denoted by .
+-Calculates the next generation of grid based on 4 conditions
+	1. Any live cell with fewer than two live neighbours dies, as if caused by under population.
+	2. Any live cell with more than three live neighbours dies, as if by overcrowding.
+	3. Any live cell with two or three live neighbours lives on to the next generation.
+	4. Any dead cell with exactly three live neighbours becomes a live cell.
+
+*************************************************************************************************/
+
+function nextGeneration($fn_input, $grid_row, $grid_col)
+{
+	// store the input in a grid form(2D array)
+	
+	$in_array = array();
+	for($m=0; $m<$grid_row; $m++)
+	{
+		for($n=0; $n<$grid_col; $n++)
+		{
+			$pos = $grid_col*$m+$n;
+			$in_array[$m][$n] = $fn_input[$pos];
+		}
+	}
+	echo nl2br("\n input \n");
+	print_r ($in_array);
+	
+	// Calculate the next generation of grid based on given conditions
+	for($i=0; $i<4; $i++)
+	{
+		for($j=0; $j<8; $j++)
+		{
+			$k_first;
+			$k_last;
+			$l_first;
+			$l_last;
+			if($i==0)
+			{
+				$k_first = 0;
+				$k_last = $i+1;
+			}
+			else if($i==3)
+			{
+				$k_first = $i-1;
+				$k_last = 3;
+			}
+			else
+			{
+				$k_last = $i+1;
+				$k_first = $i-1;
+			}
+			
+			if($j==0)
+			{
+				$l_first = 0;
+				$l_last = $j+1;
+			}
+			else if($j==7)
+			{
+				$l_first = $j-1;
+				$l_last = 7;
+			}
+			else
+			{
+				$l_last = $j+1;
+				$l_first = $j-1;
+			}
+			$count = countLive($k_first,$k_last,$l_first,$l_last,$in_array);
+			//echo nl2br("i--".$i."--j--".$j."--kfirst".$k_first."Klast".$k_last."Lfirst".$l_first."Llast".$l_last." count: ".$count."\n");
+			
+			
+			if($in_array[$i][$j] == '*')
+			{
+				$count = $count-1;	// Decrement count by 1 as the cell itself is live (*)
+				if($count<2 || $count>3)
+				{
+					$in_array[$i][$j] = '.';
+				}
+				else
+				{
+					$in_array[$i][$j] = '*';
+				}
+			}
+			
+			if($in_array[$i][$j] == '.' && $count == 3)
+			{
+				$in_array[$i][$j] = '*';
+			}
+			
+		}
+	}
+	return $in_array;
+		
+}
+
+
+
+/***********************************************************************
+
+Function Name: countLive
+Input Parameters : 
+Return : count -- number of live cells(*)
+Description :
+This function counts the number of live cells(*) around a specific cell
+
+***********************************************************************/
+
+function countLive($k_f,$k_l,$l_f,$l_l,$in_array)
+{
+	$count = 0;
+	for($k=$k_f; $k<=$k_l; $k++)
+			{
+				for($l=$l_f; $l<=$l_l; $l++)
+				{
+					if($in_array[$k][$l] == '*')	
+					{
+						$count++;
+					}
+					
+					//echo nl2br("\n".$k_f."Klast".$k_l."Lfirst".$l_f."Llast".$l_l."\t");					
+				}
+			}
+				return $count;
+}
+
+?>
